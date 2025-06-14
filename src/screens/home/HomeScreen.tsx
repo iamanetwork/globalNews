@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   FlatList,
   Image,
   Platform,
@@ -32,7 +33,15 @@ const HomeScreen = () => {
   }, []);
 
   const fetchGlobalNews = async () => {
-    await dispatch(fetchHomeData());
+    try {
+      setLoading(true);
+      setError(null);
+      await dispatch(fetchHomeData());
+    } catch (err: any) {
+      setError('Failed to fetch news. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const renderNewsData = ({
@@ -63,6 +72,14 @@ const HomeScreen = () => {
     );
   };
 
+  const renderIndicator = () => {
+    return (
+      <View style={styles.indicator}>
+        <ActivityIndicator size={'large'} color={'black'} />
+      </View>
+    );
+  };
+
   const renderEmptyComponent = () => (
     <View style={styles.centered}>
       <Text style={styles.messageText}>{error ? error : 'No data found.'}</Text>
@@ -75,6 +92,8 @@ const HomeScreen = () => {
   return (
     <View style={styles.main}>
       <View style={styles.listContainer}>
+        {loading && renderIndicator()}
+
         <FlatList
           data={homeData}
           keyExtractor={item => item.title}
@@ -127,4 +146,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: DeviceHeight / 60.2857,
   },
+  indicator: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 });
